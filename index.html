@@ -116,7 +116,7 @@
     const randomId = squareIds[Math.floor(Math.random() * squareIds.length)];
     sequence.push(randomId);
     sequence.forEach((id, index) => {
-      setTimeout(() => { flashSquare(id); }, (index + 1) * 700);
+      setTimeout(() => { flashSquare(id); }, (index + 1) * 900);
     });
   }
 
