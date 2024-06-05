@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROC Says</title>
+<style>
+  body{
+    background-color: darkgray;
+  }
+  
+  .game-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 300px;
+    margin: auto;
+  }
+  .color-square {
+    width: 30%;
+    height: 100px;
+    margin: 1.5%;
+    opacity: 0.5;
+    border-radius: 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3em; 
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+  }
+  #red { background-color: rgb(250, 71, 250); }
+  #green { background-color: rgb(43, 255, 0); }
+  #blue { background-color: rgb(255, 0, 191); }
+  #yellow { background-color: rgb(140, 0, 255); }
+  #purple { background-color: rgb(255, 0, 0); }
+  #orange { background-color: rgb(2, 196, 255); }
+  #score {
+    text-align: center;
+    font-size: 20px;
+    margin-top: 10px;
+  }
+  #startButton {
+    display: block;
+    width: 200px;
+    height: 50px;
+    margin: 20px auto;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    line-height: 50px;
+    font-size: 1.2em;
+    cursor: pointer;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  }
+  #gameOverMessage {
+    text-align: center;
+    font-size: 20px;
+    color: rgb(0, 0, 0);
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div id="red" class="color-square"></div>
+  <div id="green" class="color-square"></div>
+  <div id="blue" class="color-square"></div>
+  <div id="yellow" class="color-square"></div>
+  <div id="purple" class="color-square"></div>
+  <div id="orange" class="color-square"></div>
+</div>
+<p style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;" id="score">Score: 0</p>
+<button id="startButton">Start Game</button>
+<p id="gameOverMessage"></p>
+
+<script>
+  const sequence = [];
+  const userSequence = [];
+  let score = 0;
+  let squareIds = ['red', 'green', 'blue', 'yellow', 'purple', 'orange'];
+  let soundUrls = {
+    'red': '1.mp3',
+    'green': '2.mp3',
+    'blue': '3.mp3',
+    'yellow': '4.mp3',
+    'purple': '5.mp3',
+    'orange': '6.mp3'
+  };
+  let keyMap = {
+    'q': 'red',
+    'w': 'green',
+    'e': 'blue',
+    'a': 'yellow',
+    's': 'purple',
+    'd': 'orange'
+  };
+
+  function playSound(id) {
+    new Audio(soundUrls[id]).play();
+  }
+
+  function flashSquare(id) {
+    const square = document.getElementById(id);
+    square.style.opacity = 5;
+    square.textContent = "\uD83E\uDD18";
+    square.style.boxShadow = 'none';
+    playSound(id);
+    setTimeout(() => { 
+      square.style.opacity = 0.3; 
+      square.textContent = ""; 
+      square.style.boxShadow = '2px 2px 5px rgba(0, 0, 0, 0.3)'; // Add the shadow back
+    }, 1000);
+  }
+
+  function nextSequence() {
+    const randomId = squareIds[Math.floor(Math.random() * squareIds.length)];
+    sequence.push(randomId);
+    sequence.forEach((id, index) => {
+      setTimeout(() => { flashSquare(id); }, (index + 1) * 500);
+    });
+  }
+
+  function startGame() {
+    document.getElementById('gameOverMessage').textContent = '';
+    nextSequence();
+  }
+
+  function squareClicked(id) {
+    userSequence.push(id);
+    flashSquare(id);
+    if (userSequence.length === sequence.length) {
+      if (userSequence.every((val, index) => val === sequence[index])) {
+        score++;
+        document.getElementById('score').textContent = 'Score: ' + score;
+        userSequence.length = 0;
+        nextSequence();
+      } else {
+        document.getElementById('gameOverMessage').textContent = 'Game over! Your final score is: ' + score + '. Refresh the page to play again.';
+        score = 0;
+        document.getElementById('score').textContent = 'Score: ' + score;
+        sequence.length = 0;
+        userSequence.length = 0;
+      }
+    }
+  }
+
+  document.querySelectorAll('.color-square').forEach(square => {
+    square.addEventListener('click', () => squareClicked(square.id));
+  });
+
+  document.getElementById('startButton').addEventListener('click', startGame);
+
+  window.addEventListener('keydown', (event) => {
+    if (keyMap[event.key]) {
+      squareClicked(keyMap[event.key]);
+    }
+  });
+</script>
+</body>
+</html>
